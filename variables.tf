@@ -15,16 +15,6 @@ data "oci_identity_regions" "available_regions" {
     regex = false
   }
 }
-output "block_volumes_and_device_paths" {
-  value = zipmap(oci_core_volume.bv.*.display_name,
-      oci_core_volume_attachment.bv_attachment.*.device)
-}
-output "bv_attachment_info" {
-  value = ["ls -l /dev/oracleoci/", "cat /home/opc/iscsi-commands.sh"]
-}
-output "mount_commands" {
-  value = "cat /home/opc/mount-commands.sh"
-}
 output "public_ip_address" {
   value = oci_core_instance.compute.public_ip
 }
@@ -49,11 +39,6 @@ locals {
   compute_hostname = "openfoamnode"
   compute_shape = var.compute_shape
   fd_number = 1
-  # block volume values
-  bv_storage_gb = 51
-  vpus_per_gb = 10 # 0: lower cost, 10: balanced, 20: higher performance
-  bv_device_path_prefix = "/dev/oracleoci/oraclevd"
-  bv_device_path_suffix = ["b"] # number of block volumes to attach
   # common
   ad_number = var.ad_number
   ad = lookup(data.oci_identity_availability_domains.ads.availability_domains[local.ad_number - 1],"name")
@@ -93,10 +78,4 @@ variable "image" {
     "us-phoenix-1"    = "ocid1.image.oc1.phx.aaaaaaaacy7j7ce45uckgt7nbahtsatih4brlsa2epp5nzgheccamdsea2yq"
     "ap-osaka-1"      = "ocid1.image.oc1.ap-osaka-1.aaaaaaaa23apvyouh3fuiw7aqjo574zsmgdwtetato6uxgu7tct7y4uaqila"
   }
-}
-
-# ssh private key
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-  rsa_bits  = "4096"
 }
