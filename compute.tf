@@ -65,6 +65,7 @@ resource "null_resource" "execute_commands" {
       # get motorbike content from Object Storage
       "wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/Z9yaEj5EBmciVjmIYpTvFFLMfxHmQW23U68nVfTkJbT7nYx3wlH8u8Ca_HPrK55p/n/hpc_limited_availability/b/large_files/o/work.tar.gz",
       "tar -xf work.tar.gz",
+      "sudo firewall-cmd --add-service=vnc-server", # allow inbound vnc traffic through os-level firewall
     ]
     connection {
       host        = oci_core_instance.compute.public_ip

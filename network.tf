@@ -17,12 +17,6 @@ resource "oci_core_route_table" "pub_rt" {
     destination_type  = "CIDR_BLOCK"
   }
 }
-# rt for priv sub
-resource "oci_core_route_table" "priv_rt" {
-  compartment_id  = var.compartment_ocid
-  vcn_id          = oci_core_vcn.vcn.id
-  display_name    = "${local.region}-${local.private}-${local.route_table}"
-}
 # pub sub
 resource "oci_core_subnet" "pub_sub" {
   prohibit_public_ip_on_vnic = false
@@ -33,17 +27,6 @@ resource "oci_core_subnet" "pub_sub" {
   dns_label         = "${local.public}${local.subnet}"
   security_list_ids = [oci_core_security_list.pub_sl.id]
   route_table_id    = oci_core_route_table.pub_rt.id
-}
-# priv sub
-resource "oci_core_subnet" "priv_sub" {
-  prohibit_public_ip_on_vnic = true
-  cidr_block        = local.priv_sub_cidr
-  compartment_id    = var.compartment_ocid
-  vcn_id            = oci_core_vcn.vcn.id
-  display_name      = "${local.region}-${local.private}-${local.subnet}"
-  dns_label         = "${local.private}${local.subnet}"
-  security_list_ids = [oci_core_security_list.priv_sl.id]
-  route_table_id    = oci_core_route_table.priv_rt.id
 }
 #igw
 resource "oci_core_internet_gateway" "igw" {
@@ -74,38 +57,22 @@ resource "oci_core_security_list" "pub_sl" {
       min = 22
     }
   }
+  # inbound traffic
+  ingress_security_rules {
+    protocol = 6
+    source   = "0.0.0.0/0"
+
+    tcp_options {
+      # allow inbound vnc traffic
+      max = 5901
+      min = 5901
+    }
+  }
   ingress_security_rules {
     protocol = 1
     source   = "0.0.0.0/0"
     icmp_options {
       type = 8
     }
-  }
-}
-# priv sl
-resource "oci_core_security_list" "priv_sl" {
-  compartment_id = var.compartment_ocid
-  vcn_id         = oci_core_vcn.vcn.id
-  display_name   = "${local.region}-${local.private}-${local.security_list}"
-
-  # outbound traffic
-  egress_security_rules {
-    destination      = local.pub_sub_cidr
-    protocol         = "all"
-  }
-  # outbound traffic
-  egress_security_rules {
-    destination      = local.priv_sub_cidr
-    protocol         = "all"
-  }
-  # inbound traffic
-  ingress_security_rules {
-    protocol = "all"
-    source   = local.pub_sub_cidr
-  }
-  # inbound traffic
-  ingress_security_rules {
-    protocol = "all"
-    source   = local.priv_sub_cidr
   }
 }
