@@ -1,5 +1,6 @@
 # set   TF_VAR_ variables: $ source env.sh
 # unset TF_VAR_ variables: $ unset ${!TF_VAR_@}
+# inspect TF_VAR_ variables: $ env | grep TF_VAR_
 export TF_VAR_tenancy_ocid=TENANCY_OCID # replace
 export TF_VAR_user_ocid=USER_OCID # replace
 export TF_VAR_fingerprint=FINGERPRINT # replace

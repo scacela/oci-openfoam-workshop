@@ -1,28 +1,6 @@
 variable "region" {}
 variable "compartment_ocid" {}
 variable "ssh_public_key" {}
-data "oci_identity_availability_domains" "ads" {
-  compartment_id = var.compartment_ocid
-}
-data "oci_identity_regions" "available_regions" {
-  filter {
-    name = "name"
-    values = [var.region]
-    regex = false
-  }
-}
-output "public_ip_address" {
-  value = oci_core_instance.compute.public_ip
-}
-output "ping_info" {
-  value = "ping ${oci_core_instance.compute.public_ip}"
-}
-output "ssh_info" {
-  value = ["ssh opc@${oci_core_instance.compute.public_ip} # if private ssh key is in default location, ~/.ssh/id_rsa", "ssh -i <private ssh key path> opc@${oci_core_instance.compute.public_ip}"]
-}
-output "ssh_port_mapping_info_for_VNC" {
-  value = ["ssh -L 5901:localhost:5901 opc@${oci_core_instance.compute.public_ip} # if private ssh key is in default location, ~/.ssh/id_rsa", "ssh -i <private ssh key path> -L 5901:localhost:5901 opc@${oci_core_instance.compute.public_ip}"]
-}
 variable "compute_shape" { default = "VM.Standard2.1" }
 variable "ad_number" { default = 1 }
 locals {
